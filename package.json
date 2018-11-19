@@ -1,0 +1,49 @@
+{
+  "name": "@nuware/router",
+  "version": "0.1.1",
+  "description": "Simple router for a browser",
+  "main": "dist/router.cjs.js",
+  "module": "dist/router.esm.js",
+  "browser": "dist/router.umd.js",
+  "minimized": "dist/router.umd.min.js",
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nuware/router.git"
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "lint": "eslint src/index.js",
+    "build": "rollup -c",
+    "release": "npm run clean && npm run lint && npm run build"
+  },
+  "author": "Dmitry Dudin <dima@nuware.ru>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nuware/router/issues"
+  },
+  "devDependencies": {
+    "eslint": "^5.8.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-node": "^8.0.0",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "rollup": "^0.67.0",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-node-resolve": "^3.4.0",
+    "rollup-plugin-terser": "^3.0.0"
+  },
+  "dependencies": {
+    "@nuware/effect": "^0.1.6",
+    "@nuware/functions": "^0.1.18"
+  },
+  "eslintConfig": {
+    "extends": "standard",
+    "rules": {
+      "no-multi-spaces": "off"
+    }
+  }
+}
