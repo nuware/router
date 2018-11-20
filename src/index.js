@@ -15,7 +15,9 @@ import {
   prop,
   assoc,
   split,
+  append,
   reduce,
+  length,
   compose
 } from '@nuware/functions'
 
@@ -48,9 +50,13 @@ import Effect from '@nuware/effect'
  *
  */
 
-const Router = (routes, options = {}) => {
+const Router = (routes = {}, options = {}) => {
   options.default = options.default || '/'
   options.hashbang = options.hashbang || '#!'
+
+  routes = Object.assign({
+    '/': () => {}
+  }, routes)
 
   const win = Effect.of(window)
 
@@ -64,12 +70,14 @@ const Router = (routes, options = {}) => {
     } else {
       acc.path[i] = part
     }
+    acc.size++
     return acc
   })({
     pattern: pattern,
     path: [],
     params: [],
-    handler: handler
+    handler: handler,
+    size: 0
   })(prepareParts(pattern))
 
   const parseRoutes = routes => compose(
@@ -86,11 +94,16 @@ const Router = (routes, options = {}) => {
   const findRoutesByPath = path => {
     const pathParts = prepareParts(path)
     return find(route => {
-      return compose(reduce((acc, curr) => curr && acc)(true), map((part, i) => {
-        const inPath = eq(route.path[i])(part)
-        const inParams = not(isNull(route.params[i]))
-        return !!(inPath || inParams)
-      }))(pathParts)
+      return eq(route.size)(length(pathParts))
+        ? compose(
+          reduce((acc, curr) => (curr && acc))(true),
+          reduce((acc, part, i) => {
+            const inPath = eq(route.path[i])(part)
+            const inParams = !!route.params[i]
+            return append(inPath || inParams)(acc)
+          })([])
+        )(pathParts)
+        : false
     })(parsedRoutes)
   }
 
@@ -103,16 +116,17 @@ const Router = (routes, options = {}) => {
 
   // const defaultRoute = () => findRoutesByPattern(options.default)
 
-  const navigate = path => {
-    return win.chain(x => {
-      x.location.hash = join('')([options.hashbang, path])
-      return x.location.hash
+  const navigate = (path) => {
+    const hash = join('')([options.hashbang, path])
+    win.chain(x => {
+      x.location.hash = hash
     })
   }
 
   const process = (path, route) => {
     const params = extractParams(path, route)
     isFunction(route.handler) && route.handler(path, params)
+    return void (0)
   }
 
   const onHashChangeEventHandler = () => {
@@ -124,7 +138,10 @@ const Router = (routes, options = {}) => {
     isDefined(route) ? process(path, route) : navigate(options.default)
   }
 
-  win.chain(x => x.addEventListener('hashchange', onHashChangeEventHandler, false))
+  win.map(x => {
+    x.addEventListener('hashchange', onHashChangeEventHandler, false)
+    return options.default
+  }).chain(navigate)
 
   return {
     navigate
