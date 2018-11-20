@@ -1,6 +1,7 @@
 /* globals window */
 
 import {
+  I,
   isNull,
   isFunction,
   isDefined,
@@ -18,6 +19,7 @@ import {
   append,
   reduce,
   length,
+  filter,
   compose
 } from '@nuware/functions'
 
@@ -60,7 +62,7 @@ const Router = (routes = {}, options = {}) => {
 
   const win = Effect.of(window)
 
-  const prepareParts = parts => compose(tail, split('/'))(parts)
+  const prepareParts = parts => compose(filter(I), split('/'))(parts)
 
   const parsePattern = (pattern, handler) => reduce((acc, part, i) => {
     acc.params[i] = null
@@ -131,7 +133,7 @@ const Router = (routes = {}, options = {}) => {
 
   const onHashChangeEventHandler = () => {
     const path = win.map(x => x.location.hash).chain(compose(
-      head, tail,
+      head, filter(I),
       split(options.hashbang)
     ))
     const route = findRoutesByPath(path)
