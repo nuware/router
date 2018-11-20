@@ -1,6 +1,6 @@
 {
   "name": "@nuware/router",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Simple router for a browser",
   "main": "dist/router.cjs.js",
   "module": "dist/router.esm.js",
